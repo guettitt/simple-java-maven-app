@@ -1,30 +1,35 @@
 pipeline {
- agent {
-     docker {
-         image 'maven:3.8.1-adoptopenjdk-11'
-         args '-v /root/.m2:/root/.m2'
-     }
- }
- stages {
-     stage('Build') {
-         steps {
-             sh 'mvn -B -DskipTests clean package'
-         }
-     }
-     stage('Test') { //1
-         steps {
-             sh 'mvn test' //2
-         }
-         post {
-             always {
-                 junit 'target/surefire-reports/*.xml' //3
-             }
-         }
-     }
-     stage('Deliver') { //1
-         steps {
-             sh './jenkins/scripts/deliver.sh' //2
-         }
-     }
- }
+  agent {
+    docker {
+      image 'maven:3.8.1-adoptopenjdk-11'
+      args '-v /root/.m2:/root/.m2'
+    }
+
+  }
+  stages {
+    stage('Build') {
+      steps {
+        sh 'mvn -B -DskipTests clean package'
+      }
+    }
+
+    stage('Test') {
+      post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+        }
+
+      }
+      steps {
+        sh 'mvn test'
+      }
+    }
+
+    stage('Deliver') {
+      steps {
+        sh './jenkins/scripts/deliver.sh'
+      }
+    }
+
+  }
 }
